@@ -1,0 +1,44 @@
+box: golang
+build:
+  steps:
+    # Sets the go workspace and places you package
+    # at the right place in the workspace tree
+    - setup-go-workspace
+    # Gets the dependencies
+    - script:
+        name: go get
+        code: |
+          go get
+
+    # Build the project
+    - script:
+        name: go build
+        code: |          
+          go build
+          cp $WERCKER_SOURCE_DIR/wercker.yml $WERCKER_CACHE_DIR/wercker.yml
+    
+    # Test the project
+    - script:
+        name: go test
+        code: |
+          go test ./...
+
+push-test:
+    box:
+        id: ubuntu
+        tag: latest
+
+    steps:
+    - script:
+        name: restore wercker.yml
+        code: |
+            cp $WERCKER_CACHE_DIR/wercker.yml $WERCKER_ROOT/wercker.yml
+
+    - script:
+        name: install dependencies
+        code: |
+            yum -y install git && yum clean all
+
+    - script:
+        name: SayHello
+        code: echo "Hello world!!!!!!"
